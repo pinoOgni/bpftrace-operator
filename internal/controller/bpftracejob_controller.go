@@ -30,7 +30,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/pinoOgni/bpftrace-operator/api/v1alpha1"
 	tracingv1alpha1 "github.com/pinoOgni/bpftrace-operator/api/v1alpha1"
 )
 
@@ -63,8 +62,8 @@ type BpfTraceJobReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.20.4/pkg/reconcile
 func (r *BpfTraceJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	l := log.FromContext(ctx)
-	key := req.NamespacedName.String()
-	bpfTraceJob := v1alpha1.BpfTraceJob{}
+	key := req.String()
+	bpfTraceJob := tracingv1alpha1.BpfTraceJob{}
 
 	err := r.Get(ctx, req.NamespacedName, &bpfTraceJob)
 
@@ -88,11 +87,11 @@ func (r *BpfTraceJobReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		// Update status to "Running"
 		r.updateStatusPhase(ctx, &bpfTraceJob, PhaseRunning)
 
-		go func(job v1alpha1.BpfTraceJob, key string, namespacedName types.NamespacedName) {
+		go func(job tracingv1alpha1.BpfTraceJob, key string, namespacedName types.NamespacedName) {
 			err := runBpftrace(ctxBpf, generateScript(job))
 
 			// Fetch the latest CR instance before updating status
-			var freshJob v1alpha1.BpfTraceJob
+			var freshJob tracingv1alpha1.BpfTraceJob
 			if getErr := r.Get(context.Background(), namespacedName, &freshJob); getErr != nil {
 				if !apierrors.IsNotFound(getErr) {
 					log.FromContext(ctx).Error(getErr, "failed to get fresh CR for status update")
@@ -121,7 +120,7 @@ func (r *BpfTraceJobReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func generateScript(bpfTraceJob v1alpha1.BpfTraceJob) string {
+func generateScript(bpfTraceJob tracingv1alpha1.BpfTraceJob) string {
 	return fmt.Sprintf(`
 %s
 {
@@ -137,7 +136,7 @@ func runBpftrace(ctx context.Context, script string) error {
 	return cmd.Run()
 }
 
-func (r *BpfTraceJobReconciler) updateStatusPhase(ctx context.Context, job *v1alpha1.BpfTraceJob, phase string) {
+func (r *BpfTraceJobReconciler) updateStatusPhase(ctx context.Context, job *tracingv1alpha1.BpfTraceJob, phase string) {
 	if job.Status.Phase != phase {
 		job.Status.Phase = phase
 		err := r.Status().Update(ctx, job)
