@@ -1,0 +1,9 @@
+apiVersion: tracing.dev.local/v1alpha1
+kind: BpfTraceJob
+metadata:
+  labels:
+    app.kubernetes.io/name: bpftrace-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: bpftracejob-sample
+spec:
+  hook: tracepoint:syscalls:sys_enter_execve

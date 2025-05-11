@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - tracing.dev.local
+  resources:
+  - bpftracejobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - tracing.dev.local
+  resources:
+  - bpftracejobs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - tracing.dev.local
+  resources:
+  - bpftracejobs/status
+  verbs:
+  - get
+  - patch
+  - update

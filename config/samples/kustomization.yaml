@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- tracing_v1alpha1_bpftracejob.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples
