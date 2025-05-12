@@ -1,8 +1,13 @@
 # bpftrace-operator
-// TODO(user): Add simple overview of use/purpose
+
+> **Note:** This is just an example of K8s Operator. **The doc is a work in progress**.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+
+`bpftrace-operator` is an example of a Kubernetes operator that watches for events related to a Custom Resource (CR) and reacts by executing some tasks.
+
+Since I work with and really enjoy eBPF, I decided to combine both worlds, instead of building yet another typical Kubernetes operator like the usual nginx-based examples you often find online. I didn’t want to stray too far from the main goal, which is to show how to have a Kubernetes operator. That’s why the eBPF side is kept relatively simple: I’ve used **bpftrace**, a powerful, user-friendly tracing tool that’s great for those who are just starting to explore the eBPF ecosystem. It’s readable and approachable even for people with limited eBPF experience.
+
 
 ## Getting Started
 
