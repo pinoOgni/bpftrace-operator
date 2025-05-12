@@ -70,11 +70,11 @@ spec:
         ports: []
         # this is needed for bpftrace
         securityContext:
-          allowPrivilegeEscalation: false
           privileged: true
           runAsUser: 0
-        capabilities:
-          drop: ["ALL"]
+          capabilities:
+              drop:
+                - ALL
         livenessProbe:
           httpGet:
             path: /healthz
