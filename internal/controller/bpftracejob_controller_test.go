@@ -51,6 +51,9 @@ var _ = Describe("BpfTraceJob Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
+					Spec: tracingv1alpha1.BpfTraceJobSpec{
+						Hook: "tracepoint:syscalls:sys_enter_execve",
+					},
 					// TODO(user): Specify other spec details if needed.
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())

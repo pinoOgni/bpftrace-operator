@@ -6,3 +6,6 @@ images:
 - name: controller
   newName: pinoogni/bpftrace-operator
   newTag: latest
+- name: pinoogni/bpftrace-operator
+  newName: pinoogni/bpftrace-operator
+  newTag: latest

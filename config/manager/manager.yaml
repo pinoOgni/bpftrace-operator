@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    control-plane: controller-manager
+    control-plane: bpftrace-operator
     app.kubernetes.io/name: bpftrace-operator
     app.kubernetes.io/managed-by: kustomize
   name: system
@@ -10,16 +10,16 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: controller-manager
-  namespace: system
+  name: bpftrace-operator
+  namespace: bpftrace-operator
   labels:
-    control-plane: controller-manager
+    control-plane: bpftrace-operator
     app.kubernetes.io/name: bpftrace-operator
     app.kubernetes.io/managed-by: kustomize
 spec:
   selector:
     matchLabels:
-      control-plane: controller-manager
+      control-plane: bpftrace-operator
       app.kubernetes.io/name: bpftrace-operator
   replicas: 1
   template:
@@ -27,7 +27,7 @@ spec:
       annotations:
         kubectl.kubernetes.io/default-container: manager
       labels:
-        control-plane: controller-manager
+        control-plane: bpftrace-operator
         app.kubernetes.io/name: bpftrace-operator
     spec:
       # TODO(user): Uncomment the following code to configure the nodeAffinity expression
@@ -65,12 +65,16 @@ spec:
           - --leader-elect
           - --health-probe-bind-address=:8081
         image: pinoogni/bpftrace-operator:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         name: manager
         ports: []
+        # this is needed for bpftrace
         securityContext:
+          allowPrivilegeEscalation: false
           privileged: true
           runAsUser: 0
+        capabilities:
+          drop: ["ALL"]
         livenessProbe:
           httpGet:
             path: /healthz
@@ -117,5 +121,5 @@ spec:
       - name: bpffs
         hostPath:
           path: /sys/fs/bpf
-      serviceAccountName: controller-manager
+      serviceAccountName: bpftrace-operator
       terminationGracePeriodSeconds: 10
