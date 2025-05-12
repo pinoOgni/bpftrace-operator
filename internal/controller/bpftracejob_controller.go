@@ -76,7 +76,7 @@ func (r *BpfTraceJobReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 				runningJobs.Delete(key)
 			}
 		}
-		l.Info("BpfTraceJob is deleted. We can stop the related bpftrace process", "namespaceName", req.NamespacedName)
+		l.Info("BpfTraceJob is deleted. We can stop the related bpftrace process", "namespaceName", req.NamespacedName.String())
 		// Some other error
 		return ctrl.Result{}, nil
 	}
