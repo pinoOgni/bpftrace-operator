@@ -7,3 +7,6 @@ metadata:
   name: bpftracejob-sample
 spec:
   hook: tracepoint:syscalls:sys_enter_execve
+  # action field is optional
+  action: |
+    printf("PID %d called probe: %s\n", pid, probe);

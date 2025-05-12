@@ -34,6 +34,7 @@ import (
 )
 
 const (
+	DefaultAction  = `printf("comm: %s, probe: %s\n", comm, probe);`
 	PhaseRunning   = "Running"
 	PhaseCompleted = "Completed"
 	PhaseFailed    = "Failed"
@@ -64,6 +65,7 @@ func (r *BpfTraceJobReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	l := log.FromContext(ctx)
 	key := req.String()
 	bpfTraceJob := tracingv1alpha1.BpfTraceJob{}
+	var script string
 
 	err := r.Get(ctx, req.NamespacedName, &bpfTraceJob)
 
@@ -88,8 +90,12 @@ func (r *BpfTraceJobReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		r.updateStatusPhase(ctx, &bpfTraceJob, PhaseRunning)
 
 		go func(job tracingv1alpha1.BpfTraceJob, key string, namespacedName types.NamespacedName) {
-			err := runBpftrace(ctxBpf, generateScript(job))
-
+			if job.Spec.Action != "" {
+				script = generateScript(job.Spec.Hook, job.Spec.Action)
+			} else {
+				script = generateScript(job.Spec.Hook, DefaultAction)
+			}
+			err := runBpftrace(ctxBpf, script)
 			// Fetch the latest CR instance before updating status
 			var freshJob tracingv1alpha1.BpfTraceJob
 			if getErr := r.Get(context.Background(), namespacedName, &freshJob); getErr != nil {
@@ -100,7 +106,7 @@ func (r *BpfTraceJobReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			}
 
 			if err != nil {
-				r.updateStatusPhase(context.Background(), &freshJob, "Failed")
+				r.updateStatusPhase(context.Background(), &freshJob, PhaseFailed)
 			}
 
 			// Clean up
@@ -120,13 +126,8 @@ func (r *BpfTraceJobReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func generateScript(bpfTraceJob tracingv1alpha1.BpfTraceJob) string {
-	return fmt.Sprintf(`
-%s
-{
-  printf("comm: %%s, probe: %%s\n", comm, probe);
-}
-`, bpfTraceJob.Spec.Hook)
+func generateScript(hook, action string) string {
+	return fmt.Sprintf("%s {\n%s\n}\n", hook, action)
 }
 
 func runBpftrace(ctx context.Context, script string) error {

@@ -26,7 +26,11 @@ import (
 // BpfTraceJobSpec defines the desired state of BpfTraceJob.
 type BpfTraceJobSpec struct {
 	// The hook point to attach to (e.g., "kprobe:vfs_read", "tracepoint:syscalls:sys_enter_execve")
+	// +kubebuilder:validation:MinLength=1
 	Hook string `json:"hook"`
+
+	// Optional action block
+	Action string `json:"action,omitempty"`
 }
 
 // BpfTraceJobStatus defines the observed state of BpfTraceJob.
